@@ -1,0 +1,36 @@
+
+name: FISHI Sample Importer Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Python tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run sample importer
+        run: python -m src.fishi.cli --sample --output-dir output
+
+      - name: Save sample results
+        uses: actions/upload-artifact@v4
+        with:
+          name: fishi-sample-import
+          path: output/
+          retention-days: 7
