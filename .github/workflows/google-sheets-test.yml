@@ -51,4 +51,17 @@ jobs:
           print("Available tabs:")
           for sheet in result.get("sheets", []):
               print("-", sheet["properties"]["title"])
+              
+          print("\nImport_Staging column headers:")
+
+          headers = service.spreadsheets().values().get(
+              spreadsheetId=os.environ["GOOGLE_SHEET_ID"],
+              range="'Import_Staging'!1:1"
+          ).execute()
+
+          for column, header in enumerate(
+              headers.get("values", [[]])[0], start=1
+          ):
+              print(f"Column {column}: {header}")
+
           PY
