@@ -1,0 +1,4 @@
+[
+  {"id":"sample001","created_utc":1791800000,"subreddit":"example","permalink":"/r/example/comments/sample001/example_post/","title":"Fictional AIKO sample post","score":42,"num_comments":3},
+  {"id":"sample002","created_utc":1791803600,"subreddit":"example","permalink":"/r/example/comments/sample002/example_post/","title":"Fictional Fishy Observatory sample post","score":19,"num_comments":1,"crosspost_parent":"t3_sample001"}
+]
