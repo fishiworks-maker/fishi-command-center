@@ -80,7 +80,7 @@ jobs:
               service,
               os.environ["GOOGLE_SHEET_ID"],
               records,
-              batch_id="SAMPLE_001",
+              batch_id="SAMPLE_002",
           )
 
           print(f"Finished. Added {count} sample records.")
