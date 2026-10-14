@@ -67,10 +67,10 @@ def upload_to_staging(service, spreadsheet_id, records, batch_id):
         metrics = {
             "score": record.get("score", ""),
             "comments": record.get("comments", ""),
-        }
+        }                                                                                                                                                                                                                                                                                                                                                                              
         record["is_sample"] = batch_id.startswith("SAMPLE_")
-status, issues = validate_record(record)
-notes = "; ".join(issues) if issues else "Validation passed"
+        status, issues = validate_record(record)
+        notes = "; ".join(issues) if issues else "Validation passed"
         new_rows.append([
             staging_id,
             batch_id,
