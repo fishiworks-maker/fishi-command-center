@@ -68,7 +68,7 @@ jobs:
               records.append({
                   "platform_post_id": publication["platform_post_id"],
                   "post_url": publication["post_url"],
-                  "published_utc": publication["published_at"],
+                  "published_utc": publication["published_utc"],
                   "title": publication["title"],
                   "score": metric.get("score", ""),
                   "comments": metric.get("comments", ""),
