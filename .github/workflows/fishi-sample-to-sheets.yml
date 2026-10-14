@@ -1,0 +1,87 @@
+
+name: FISHI Sample to Sheets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  import-samples:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install google-auth google-api-python-client
+
+      - name: Import sample posts into staging
+        env:
+          GOOGLE_SHEET_ID: ${{ vars.GOOGLE_SHEET_ID }}
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from fishi.export import transform
+          from fishi.sheets import connect, upload_to_staging
+
+          samples = json.loads(
+              Path("sample_posts.json").read_text(encoding="utf-8")
+          )
+
+          publications, metrics = transform(
+              samples,
+              account="FISHI_WORKS"
+          )
+
+          metrics_by_id = {
+              str(m["publication_id"]): m
+              for m in metrics
+          }
+
+          records = []
+
+          for publication in publications:
+              metric = metrics_by_id.get(
+                  str(publication["publication_id"]), {}
+              )
+
+              records.append({
+                  "platform_post_id": publication["platform_post_id"],
+                  "post_url": publication["post_url"],
+                  "published_utc": publication["published_utc"],
+                  "title": publication["title"],
+                  "score": metric.get("score", ""),
+                  "comments": metric.get("comments", ""),
+              })
+
+          service = connect()
+
+          count = upload_to_staging(
+              service,
+              os.environ["GOOGLE_SHEET_ID"],
+              records,
+              batch_id="SAMPLE_001",
+          )
+
+          print(f"Finished. Added {count} sample records.")
+          PY
