@@ -2,7 +2,7 @@
 """Google Sheets staging connector for FISHI Command Center."""
 
 import json
-
+from .validation import validate_record
 import google.auth
 from googleapiclient.discovery import build
 
@@ -68,7 +68,9 @@ def upload_to_staging(service, spreadsheet_id, records, batch_id):
             "score": record.get("score", ""),
             "comments": record.get("comments", ""),
         }
-
+        record["is_sample"] = batch_id.startswith("SAMPLE_")
+status, issues = validate_record(record)
+notes = "; ".join(issues) if issues else "Validation passed"
         new_rows.append([
             staging_id,
             batch_id,
@@ -78,8 +80,8 @@ def upload_to_staging(service, spreadsheet_id, records, batch_id):
             record.get("title", ""),
             json.dumps(metrics),
             "",
-            "TEST",
-            "Sample data only - not a real Reddit API import",
+                        status,
+            notes,
         ])
 
     if not new_rows:
