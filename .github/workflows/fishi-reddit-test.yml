@@ -85,6 +85,18 @@ jobs:
 
           print("PASS: Reddit metrics change detection")
           print("PASS: Missing views handled safely")
+          
+          from fishi.reddit_import import is_reddit_post
+
+          assert is_reddit_post({"type": "t3"})
+          assert is_reddit_post({"id": "t3_abc123"})
+
+          assert not is_reddit_post({"type": "t1"})
+          assert not is_reddit_post({"id": "t1_abc123"})
+
+          print("PASS: Reddit posts accepted")
+          print("PASS: Reddit comments rejected")
+
           print("All Reddit tests passed!")
           PY
 
