@@ -107,3 +107,59 @@ def preview_reddit_csv(csv_path):
             })
 
     return posts, comments_skipped
+
+
+def dry_run_reddit_import(csv_path, existing_ids=None, destinations=None):
+    """Preview a Reddit CSV import. Never writes to Google Sheets."""
+    posts, skipped_comments = preview_reddit_csv(csv_path)
+
+    existing_ids = set(existing_ids or [])
+    destinations = dict(destinations or {})
+
+    seen_ids = set()
+    ready = []
+    issues = []
+    duplicates = []
+
+    for post in posts:
+        publication_id = post["publication_id"]
+        subreddit = post["subreddit"].strip()
+
+        if publication_id in seen_ids or publication_id in existing_ids:
+            duplicates.append(publication_id)
+            continue
+
+        seen_ids.add(publication_id)
+
+        if post["author"].lower() != "fishi_works":
+            issues.append((publication_id, "Unexpected author"))
+            continue
+
+        if subreddit.lower() == "u_fishi_works":
+            destination_id = "REDDIT_PROFILE_FISHI_WORKS"
+        else:
+            destination_id = destinations.get(subreddit.lower())
+
+        if not destination_id:
+            issues.append((publication_id, f"Unmatched destination: {subreddit}"))
+            continue
+
+        ready.append({
+            **post,
+            "account_id": "REDDIT_FISHI_WORKS",
+            "destination_id": destination_id,
+        })
+
+    
+    print("\n=== FISHI REDDIT IMPORT PREVIEW ===")
+    print(f"Posts found:       {len(posts)}")
+    print(f"Comments skipped:  {skipped_comments}")
+    print(f"Ready to import:   {len(ready)}")
+    print(f"Duplicates:        {len(duplicates)}")
+    print(f"Issues:            {len(issues)}")
+
+    for publication_id, reason in issues:
+        print(f"ISSUE: {publication_id} - {reason}")
+
+    print("DRY RUN ONLY - NO DATA WRITTEN")
+    return ready, issues, duplicates
