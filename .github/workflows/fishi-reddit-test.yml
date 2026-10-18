@@ -42,4 +42,39 @@ jobs:
           print("PASS: Existing posts detected")
           print("PASS: New posts accepted")
           print("All duplicate detection tests passed!")
+         
+          from fishi.reddit_import import metrics_changed
+
+          # First measurement must be saved.
+          assert metrics_changed(
+              {"score": 8, "comments": 2}, None
+          )
+
+          # Growing scores and comments need new snapshots.
+          assert metrics_changed(
+              {"score": 15, "comments": 4},
+              {"score": 8, "comments": 2},
+          )
+
+          # Identical statistics must not create duplicates.
+          assert not metrics_changed(
+              {"score": 8, "comments": 2},
+              {"score": 8, "comments": 2},
+          )
+
+          # Missing views must not count as a change.
+          assert not metrics_changed(
+              {"score": 8, "comments": 2},
+              {"score": 8, "comments": 2, "views": 534},
+          )
+
+          # A newly available view count is a change.
+          assert metrics_changed(
+              {"score": 8, "comments": 2, "views": 600},
+              {"score": 8, "comments": 2},
+          )
+
+          print("PASS: Reddit metrics change detection")
+          print("PASS: Missing views handled safely")
+          print("All Reddit tests passed!")
           PY
