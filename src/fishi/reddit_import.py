@@ -41,3 +41,16 @@ def metrics_changed(new_metrics, previous_metrics):
             return True
 
     return False
+
+
+def is_reddit_post(record):
+    """Accept Reddit posts (t3), but reject comments (t1)."""
+
+    reddit_type = str(
+        record.get("type")
+        or record.get("kind")
+        or record.get("id")
+        or ""
+    ).strip().lower()
+
+    return reddit_type == "t3" or reddit_type.startswith("t3_")
