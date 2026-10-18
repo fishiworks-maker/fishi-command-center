@@ -1,0 +1,45 @@
+
+name: FISHI Reddit Duplicate Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-duplicates:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Test Reddit duplicate detection
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          from fishi.reddit_import import (
+              reddit_publication_id,
+              is_existing_publication,
+          )
+
+          existing_ids = {"REDDIT_1x0pfew"}
+
+          assert reddit_publication_id("1x0pfew") == "REDDIT_1x0pfew"
+          assert reddit_publication_id(" 1X0PFEW ") == "REDDIT_1x0pfew"
+
+          assert is_existing_publication("1x0pfew", existing_ids)
+          assert not is_existing_publication("newpost123", existing_ids)
+
+          print("PASS: Stable Reddit publication IDs")
+          print("PASS: Existing posts detected")
+          print("PASS: New posts accepted")
+          print("All duplicate detection tests passed!")
+          PY
