@@ -111,6 +111,12 @@ jobs:
           print("PASS: CSV post accepted")
           print("PASS: CSV comment skipped")
 
+          from fishi.reddit_import import reddit_publication_id
+
+          assert reddit_publication_id("t3_abc123") == "REDDIT_abc123"
+          assert reddit_publication_id("abc123") == "REDDIT_abc123"
+
+          print("PASS: Reddit IDs normalized consistently")
           print("All Reddit tests passed!")
           PY
 
