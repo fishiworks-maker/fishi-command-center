@@ -4,6 +4,7 @@
 def reddit_publication_id(post_id):
     """Return a stable ID for a Reddit publication."""
     post_id = str(post_id).strip().lower()
+    post_id = post_id.removeprefix("t3_")
 
     if not post_id:
         raise ValueError("Reddit post ID cannot be empty")
