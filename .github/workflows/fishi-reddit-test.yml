@@ -87,3 +87,30 @@ jobs:
           print("PASS: Missing views handled safely")
           print("All Reddit tests passed!")
           PY
+
+          
+      - name: Read existing Reddit publications
+        env:
+          GOOGLE_SHEET_ID: ${{ vars.GOOGLE_SHEET_ID }}
+          PYTHONPATH: src
+        run: |
+          python -m pip install google-auth google-api-python-client
+
+          python - <<'PY'
+          import os
+
+          from fishi.sheets import connect
+          from fishi.reddit_sheets import get_existing_publication_ids
+
+          service = connect()
+
+          existing_ids = get_existing_publication_ids(
+              service,
+              os.environ["GOOGLE_SHEET_ID"],
+          )
+
+          print(f"PASS: Read {len(existing_ids)} publication IDs")
+          print("PASS: Publications headers verified")
+          print("No spreadsheet data was changed.")
+          PY
+
