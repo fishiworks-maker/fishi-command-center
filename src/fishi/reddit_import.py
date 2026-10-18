@@ -15,3 +15,29 @@ def is_existing_publication(post_id, existing_ids):
     """Check whether this Reddit post is already registered."""
     publication_id = reddit_publication_id(post_id)
     return publication_id in existing_ids
+
+
+
+def metrics_changed(new_metrics, previous_metrics):
+    """Check whether any available Reddit metric has changed.
+
+    Missing values are ignored, not treated as zero.
+    """
+    if previous_metrics is None:
+        return True
+
+    for field in ("views", "score", "comments"):
+        new_value = new_metrics.get(field)
+
+        if new_value is None or new_value == "":
+            continue
+
+        old_value = previous_metrics.get(field)
+
+        if old_value is None or old_value == "":
+            return True
+
+        if int(new_value) != int(old_value):
+            return True
+
+    return False
